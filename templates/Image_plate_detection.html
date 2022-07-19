@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+    <body>
+    <div>
+        <h1>Licence Plate Detection From Uploaded Image</h1> 
+        
+        <h2>This is the cropped licence plate from the photo</h2>
+        <img src="{{ url_for('static', filename=img_cropped_url) }}" />
+    </div>
+    <div>
+        <h2>This is the full photo with the plate region highlighted</h2>
+        <img src="{{ url_for('static', filename=img_full_url) }}" />   
+    </div>
+    </body>
+</html>

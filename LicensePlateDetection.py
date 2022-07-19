@@ -18,10 +18,12 @@ import easyocr
 import csv
 import uuid
 import datetime
-
+UPLOAD_FOLDER = 'E:/LicensePlateDetection/flask-ml/Images/uploads/'
+ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 
 app = Flask(__name__)
 
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # Keras OCR / not currently in use ignore the below code
 # keras-ocr will automatically download pretrained
@@ -30,7 +32,7 @@ app = Flask(__name__)
 # Keras OCR / not currently in use ignore the above code
 
 labels = [{'name':'licence', 'id':1}]
-
+print('here is the cwd ' + os.getcwd())
 configs = config_util.get_configs_from_pipeline_file('E:/LicensePlateDetection/flask-ml/Tensorfow/workspace/models/my_ssd_mobnet/pipeline.config')
 detection_model = model_builder.build(model_config=configs['model'], is_training=False)
 
@@ -45,11 +47,11 @@ def detect_fn(image):
     detections = detection_model.postprocess(prediction_dict, shapes)
     return detections
 
-category_index = label_map_util.create_category_index_from_labelmap('E:/LicensePlateDetection/flask-ml/Tensorfow/workspace/models/annotations/label_map.pbtxt')
+category_index = label_map_util.create_category_index_from_labelmap('./Tensorfow/workspace/models/annotations/label_map.pbtxt')
 
 IMAGE_PATH = 'E:/LicensePlateDetection/flask-ml/Images/test/Cars416.png'
 
-IMAGE_NAME = 'Cars416.png'
+IMAGE_NAME1 = 'Cars416.png'
 
 print(IMAGE_PATH)
 
@@ -84,7 +86,7 @@ viz_utils.visualize_boxes_and_labels_on_image_array(
 
 plt.imshow(cv2.cvtColor(image_np_with_detections, cv2.COLOR_BGR2RGB))
 #plt.show()
-plt.savefig('E:/LicensePlateDetection/flask-ml/Images/saved/' + IMAGE_NAME + '_detected_plate_full_image.png')
+plt.savefig('./Images/saved/' + IMAGE_NAME1 + '_detected_plate_full_image.png')
 
 detection_threshold = 0.7
 
@@ -115,7 +117,7 @@ def filter_text(region, ocr_result, region_threshold):
 
 # filter_text(region, ocr_result, region_threshold)
 
-def ocr_it(image, detections, detection_threshold, region_threshold):
+def ocr_it(image, detections, detection_threshold, region_threshold, image_name):
     # Scores, boxes and classes above threshold
     scores = list(filter(lambda x: x> detection_threshold, detections['detection_scores']))
     boxes = detections['detection_boxes'][:len(scores)]
@@ -154,13 +156,13 @@ def ocr_it(image, detections, detection_threshold, region_threshold):
         text = filter_text(region, ocr_result, region_threshold)
 
         plt.imshow(cv2.cvtColor(region, cv2.COLOR_BGR2RGB))
-        plt.savefig('E:/LicensePlateDetection/flask-ml/Images/saved/' + IMAGE_NAME + '_detected_late_cropped_image.png')
+        plt.savefig('./static/' + image_name + '_detected_plate_cropped_image.png')
     
         return text, region
 
-text, region = ocr_it(image_np_with_detections, detections, detection_threshold, region_threshold)
+# text, region = ocr_it(image_np_with_detections, detections, detection_threshold, region_threshold)
 
-print(text)
+# print(text)
 
 def save_results(text, region, csv_filename, folder_path):
     img_name = '{}.jpg'.format(uuid.uuid1())
@@ -210,7 +212,7 @@ def webcamdect():
 
         try:
             text, region = ocr_it(image_np_with_detections, detections, detection_threshold, region_threshold)            
-            save_results(text, region, 'E:/LicensePlateDetection/flask-ml/Detection_images/detection_results.csv', 'E:/LicensePlateDetection/flask-ml/Detection_images/')
+            save_results(text, region, './Detection_images/detection_results.csv', './Detection_images/')
         except:
             pass    
 
@@ -242,14 +244,20 @@ def video_feed():
 @app.route('/success', methods=['POST'])
 def upload_file():
     uploaded_file = request.files['file']
-    print(uploaded_file.filename)   
-    
-    img = cv2.imread(uploaded_file.filename)
+    print(uploaded_file)
+    img_cropped_url = uploaded_file.filename + '_detected_plate_cropped_image.png'
+    img_full_url = uploaded_file.filename + '_detected_plate_full_image.png'
+    if uploaded_file.filename != '':
+        uploaded_file.save(os.path.join(app.config['UPLOAD_FOLDER'], uploaded_file.filename))   
+    img_url = UPLOAD_FOLDER + uploaded_file.filename
+    print(img_url)
+    img = cv2.imread(img_url)
     image_np = np.array(img)
 
     input_tensor = tf.convert_to_tensor(np.expand_dims(image_np, 0), dtype=tf.float32)
+    print("pass")
     detections = detect_fn(input_tensor)
-
+    print("fail")
     num_detections = int(detections.pop('num_detections'))
     detections = {key: value[0, :num_detections].numpy()
                 for key, value in detections.items()}
@@ -274,7 +282,7 @@ def upload_file():
 
     plt.imshow(cv2.cvtColor(image_np_with_detections, cv2.COLOR_BGR2RGB))
     #plt.show()
-    plt.savefig('E:/LicensePlateDetection/flask-ml/Images/saved/' + uploaded_file.filename + '_detected_plate_full_image.png')
+    plt.savefig('./static/' + uploaded_file.filename + '_detected_plate_full_image.png')
 
     detection_threshold = 0.7
 
@@ -288,10 +296,10 @@ def upload_file():
 
     region_threshold = 0.4
 
-    text, region = ocr_it(image_np_with_detections, detections, detection_threshold, region_threshold)
+    text, region = ocr_it(image_np_with_detections, detections, detection_threshold, region_threshold, uploaded_file.filename)
     if uploaded_file.filename != '':
         uploaded_file.save(os.path.join(app.config['UPLOAD_FOLDER'], uploaded_file.filename))
-    return render_template('index.html')
+    return render_template('Image_plate_detection.html', img_cropped_url=img_cropped_url, img_full_url=img_full_url)
 
 
 if __name__ == '__main__':
