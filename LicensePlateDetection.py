@@ -2,6 +2,8 @@ from importlib.resources import files
 from imutils.video import VideoStream
 from PIL import Image
 from flask import Flask, render_template, redirect, request, Response, url_for
+from flask import Flask,render_template, request
+from flask_mysqldb import MySQL
 import os
 import tensorflow.compat.v1 as tf
 import numpy as np
@@ -18,10 +20,46 @@ import easyocr
 import csv
 import uuid
 import datetime
-UPLOAD_FOLDER = 'E:/LicensePlateDetection/flask-ml/Images/uploads/'
+UPLOAD_FOLDER = './Images/uploads/'
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 
 app = Flask(__name__)
+
+# MYSQL Connection settings please put your local password here
+app.config['MYSQL_HOST'] = 'localhost'
+app.config['MYSQL_USER'] = 'root'
+app.config['MYSQL_PASSWORD'] = 'raFFie'
+app.config['MYSQL_DB'] = 'license_plate_db'
+
+mysql = MySQL(app)
+
+@app.route('/form')
+def form():
+    return render_template('form.html')
+ 
+@app.route('/login', methods = ['POST', 'GET'])
+def login():
+    if request.method == 'GET':
+        return "Login via the login Form"
+     
+    if request.method == 'POST':
+        rego = request.form['rego']        
+        cursor = mysql.connection.cursor()
+        cursor.execute(''' INSERT INTO license_plates (id_license_plate) VALUES(%s)''',[rego])
+        mysql.connection.commit()
+        cursor.close()
+        return f"Done!!"
+
+@app.route('/license_plates', methods=['GET'])
+def license_plates():
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT id_license_plate AS rego from license_plates;")
+    data = cursor.fetchall()
+    print(data)    
+    return render_template('license_plate_table.html', data=data)
+    
+ 
+
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
@@ -33,12 +71,12 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 labels = [{'name':'licence', 'id':1}]
 print('here is the cwd ' + os.getcwd())
-configs = config_util.get_configs_from_pipeline_file('E:/LicensePlateDetection/flask-ml/Tensorfow/workspace/models/my_ssd_mobnet/pipeline.config')
+configs = config_util.get_configs_from_pipeline_file('./Tensorfow/workspace/models/my_ssd_mobnet/pipeline.config')
 detection_model = model_builder.build(model_config=configs['model'], is_training=False)
 
 # Restore checkpoint
 ckpt = tf.compat.v2.train.Checkpoint(model=detection_model)
-ckpt.restore(os.path.join('E:/LicensePlateDetection/flask-ml/Tensorfow\workspace/models/my_ssd_mobnet', 'ckpt-11')).expect_partial()
+ckpt.restore(os.path.join('./Tensorfow\workspace/models/my_ssd_mobnet', 'ckpt-11')).expect_partial()
 
 @tf.function
 def detect_fn(image):
@@ -49,7 +87,7 @@ def detect_fn(image):
 
 category_index = label_map_util.create_category_index_from_labelmap('./Tensorfow/workspace/models/annotations/label_map.pbtxt')
 
-IMAGE_PATH = 'E:/LicensePlateDetection/flask-ml/Images/test/Cars416.png'
+IMAGE_PATH = './Images/test/Cars416.png'
 
 IMAGE_NAME1 = 'Cars416.png'
 

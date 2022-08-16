@@ -1,0 +1,23 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <table border="1" cellpadding="5" cellspacing="5">
+        {% for row in data %}
+        <tr>
+            {% for d in row %}
+            <td>{{d}}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+
+        
+    </table>
+
+    
+</body>
+</html>
