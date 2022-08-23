@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/reports.css') }}">
+    <title></title>
+    <h1>Car Park Software Beta</h1>
+</head>
+<body>
+
+    <div>
+        <button class="button entry_button">Entry Gate</button>
+        <button class="button exit_button">Exit Gate</button>
+        <button class="button pay_button">Pay Station</button>
+    </div>
+
+    <div>
+    <h2>Car Park Reports</h2>
+    <div class="dropdown">
+        <button class="dropbtn">Reports</button>
+        <div class="dropdown-content">
+          <a href="{{ url_for('all_cars_in_park') }}">All cars currently in car park</a>
+          <a href="amountowed.html">Amount owed by car</a>
+          <a href="history.html">Car park history</a>
+        </div>
+      </div>
+    </div>
+     
+        
+</body>
+</html>

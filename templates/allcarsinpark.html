@@ -3,22 +3,12 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/reports.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/table.css') }}">
     <title></title>
-    <h1>Car Park Reports</h1>
+    <h1>All cars in park</h1>
 </head>
-<body>
-    <div class="dropdown">
-        <button class="dropbtn">Reports</button>
-        <div class="dropdown-content">
-          <a href="allcars.html">All cars currently in car park</a>
-          <a href="amountowed.html">Amount owed by car</a>
-          <a href="history.html">Car park history</a>
-        </div>
-      </div>
-     
-    <div>  
-    <table border="1" cellpadding="5" cellspacing="5">
+<body>    
+    <table id="allcars" border="1" cellpadding="5" cellspacing="5">
         <tr>
             <th>Registration</th>
             <th>Time Entered</th>

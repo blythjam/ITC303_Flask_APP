@@ -15,6 +15,7 @@ from object_detection.utils import visualization_utils as viz_utils
 from object_detection.builders import model_builder
 from object_detection.utils import config_util
 import time
+import datetime
 import easyocr
 #import keras_ocr
 import csv
@@ -30,12 +31,17 @@ app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = 'raFFie'
 app.config['MYSQL_DB'] = 'license_plate_db'
+app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 
 mysql = MySQL(app)
 
 @app.route('/form')
 def form():
     return render_template('form.html')
+
+@app.route('/home')
+def home():
+    return render_template('home.html')
  
 @app.route('/login', methods = ['POST', 'GET'])
 def login():
@@ -43,20 +49,33 @@ def login():
         return "Login via the login Form"
      
     if request.method == 'POST':
-        rego = request.form['rego']        
+        rego = request.form['rego']      
+        timeEntered = datetime.datetime.now()            
+
         cursor = mysql.connection.cursor()
-        cursor.execute(''' INSERT INTO license_plates (id_license_plate) VALUES(%s)''',[rego])
+        cursor.execute(''' INSERT INTO license_plates (rego_number, time_entered) VALUES(%s, %s)''',[rego, timeEntered])
         mysql.connection.commit()
         cursor.close()
         return f"Done!!"
 
-@app.route('/license_plates', methods=['GET'])
-def license_plates():
-    cursor = mysql.connection.cursor()
-    cursor.execute("SELECT id_license_plate AS rego from license_plates;")
-    data = cursor.fetchall()
-    print(data)    
-    return render_template('license_plate_table.html', data=data)
+@app.route('/all_cars_in_park', methods=['GET'])
+def all_cars_in_park():
+    current_time = datetime.datetime.now() 
+    cursor =  mysql.connection.cursor()
+    cursor.execute("SELECT rego_number AS rego, time_entered as timeEntered, has_paid AS has_paid from license_plates;")
+    data = cursor.fetchall()    
+    print(data)  
+    i = 0;  
+    amount_owed = []
+    for d in data:
+        d = (current_time - data[i]["timeEntered"]).total_seconds() / 3600
+        total = d * 5
+        total = round(total, 2)
+        amount_owed.append(total)
+        print(d)
+        i += 1
+
+    return render_template('allcarsinpark.html', data=data, current_time=current_time, amount_owed=amount_owed)
     
  
 
