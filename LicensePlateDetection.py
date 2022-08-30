@@ -231,27 +231,7 @@ def ocr_it(image, detections, detection_threshold, region_threshold, image_name)
         reader = easyocr.Reader(['en'])
         ocr_result = reader.readtext(region)
         print("ocr result: ", ocr_result)
-        # Keras OCR / not currently in use ignore the below code
-        #read image from the an image path (a jpg/png file or an image url)
-        #img = keras_ocr.tools.read(region)
-        # Prediction_groups is a list of (word, box) tuples
-        #prediction_groups = pipeline.recognize([img])
-
-        #plate_text = ""
-        #new_boxes = []
-        #for text, box in prediction_groups[0]:
-        #    #print(len(prediction_groups))
-        #    plate_text += text
-        #    plate_text += " "
-        #    print(box)
-        #    new_boxes.append(box)            
-        #    #print(text)
-        #print(plate_text.upper())
-        #print(new_boxes)
-        #plate_text = plate_text.upper()
-
-        # Keras OCR / not currently in use ignore the above code
-
+       
         text = filter_text(region, ocr_result, region_threshold)        
         plt.imshow(cv2.cvtColor(region, cv2.COLOR_BGR2RGB))
         #plt.savefig('./static/' + image_name + '_detected_plate_cropped_image.png')
@@ -286,6 +266,7 @@ Entry_stop = "StopWait_placeholder.png"
 Entry_go = "go_placeholder.png"
 
 def webcamdect():    
+    
     while cap.isOpened():          
         ret, frame = cap.read()
         image_np = np.array(frame)
@@ -314,12 +295,11 @@ def webcamdect():
                     min_score_thresh=.8,
                     agnostic_mode=False)   
 
-        try:
+        try:            
             text, region = ocr_it(image_np_with_detections, detections, detection_threshold, region_threshold, IMAGE_NAME1)            
             save_results(text, region, './Detection_images/detection_results.csv', './Detection_images/')
-            print(text)
-            if (text[0] =='879 GQL'):
-                socket.send(Entry_go)              
+            print("test: ", text)                     
+            socket.send(text[0])              
         except:
             pass    
 
@@ -334,15 +314,31 @@ def webcamdect():
             break 
 
 @app.route("/")
-def index():  
-    return render_template('index.html')
-    
+def index():    
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT * FROM registered_cars")
+    data = cursor.fetchall()
+    print("test2: ", data)      
+    return render_template('index.html', data=data)
 
+
+@app.route("/go_forward/<params>")
+def go_forward(params):    
+    print(params)  
+    rego = params.replace('"', '')
+    print(rego)
+    timeEntered = datetime.datetime.now()           
+    cursor = mysql.connection.cursor()
+    cursor.execute(''' INSERT INTO license_plates (rego_number, time_entered) VALUES(%s, %s)''',[rego, timeEntered])
+    mysql.connection.commit()
+    cursor.close()    
+    return render_template('go_forward.html')
+    
 @app.route('/video_feed')
 def video_feed():
     '''
     Video streaming route.
-    '''
+    '''    
     return Response(
         webcamdect(),
         mimetype='multipart/x-mixed-replace; boundary=frame'

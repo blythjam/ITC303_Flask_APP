@@ -8,10 +8,23 @@
       socket.send('a')
     })
     socket.on('message', function(msg){
-      console.log(msg);
+      
       socket.send('a')
-      document.getElementById("myImg").src = "/static/go_placeholder.png";     
-    })
+      var data = JSON.parse('{{ data | tojson | safe }} ');
+      let result1 ="{{ data }}".includes(msg);
+      console.log(result1)   
+      if(result1){
+        window.location.href = "/go_forward/" + JSON.stringify(msg);
+            
+      }
+      
+
+       
+    })      
+
+
+
+    console.log("{{ data }} ")
   </script>
 </head>
     <body>
