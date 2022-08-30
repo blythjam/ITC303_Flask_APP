@@ -59,13 +59,15 @@ def paystation():
         current_time = datetime.datetime.now() 
         if not data["time_exited"]:
             d = (current_time - data["time_entered"]).total_seconds() / 3600
-            total = d * 5
+            total = (d-2) * 5
             total = round(total, 2)
+            if total < 0:
+                total = 0
             amount_owed = total
             print(d) 
         else:
             d = (data["time_exited"] - data["time_entered"]).total_seconds() / 3600
-            total = d * 5
+            total = (d-2) * 5
             total = round(total, 2)
             amount_owed = total
             print(d)      
@@ -109,12 +111,20 @@ def all_cars_in_park():
     i = 0;  
     amount_owed = []
     for d in data:
-        d = (current_time - data[i]["timeEntered"]).total_seconds() / 3600
-        total = d * 5
-        total = round(total, 2)
-        amount_owed.append(total)
-        print(d)
-        i += 1
+        print(data[i]["has_paid"])
+        if data[i]["has_paid"] == 0:
+            d = (current_time - data[i]["timeEntered"]).total_seconds() / 3600
+            total = (d-2) * 5
+            total = round(total, 2)
+            if total < 0:
+                amount_owed.append(0)
+            else:
+                amount_owed.append(total)
+            print(d)
+            i += 1
+        else:            
+            amount_owed.append(0)
+            i+=1
 
     return render_template('allcarsinpark.html', data=data, current_time=current_time, amount_owed=amount_owed)
     
