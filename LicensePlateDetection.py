@@ -1,4 +1,3 @@
-from importlib.resources import files
 from imutils.video import VideoStream
 from PIL import Image
 from flask import Flask, render_template, redirect, request, Response, url_for
@@ -306,8 +305,7 @@ def webcamdect():
                     agnostic_mode=False)   
 
         try:            
-            text, region = ocr_it(image_np_with_detections, detections, detection_threshold, region_threshold, IMAGE_NAME1)            
-            save_results(text, region, './Detection_images/detection_results.csv', './Detection_images/')
+            text, region = ocr_it(image_np_with_detections, detections, detection_threshold, region_threshold, IMAGE_NAME1)          
             print("test: ", text)                     
             socket.send(text[0])              
         except:
@@ -356,71 +354,7 @@ def video_feed():
 
 @socket.on('message')
 def handlemsg(msg):
-    pass
-       
-@app.route('/success', methods=['POST'])
-def upload_file():
-    uploaded_file = request.files['file']
-    print(uploaded_file)
-    img_cropped_url = uploaded_file.filename + '_detected_plate_cropped_image.png'
-    img_full_url = uploaded_file.filename + '_detected_plate_full_image.png'
-    if uploaded_file.filename != '':
-        uploaded_file.save(os.path.join(app.config['UPLOAD_FOLDER'], uploaded_file.filename))   
-    img_url = UPLOAD_FOLDER + uploaded_file.filename
-    print(img_url)
-    img = cv2.imread(img_url)    	
-    #gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    image_np = np.array(img)
-
-    input_tensor = tf.convert_to_tensor(np.expand_dims(image_np, 0), dtype=tf.float32)
-    print("pass")
-    detections = detect_fn(input_tensor)
-    print("fail")
-    num_detections = int(detections.pop('num_detections'))
-    detections = {key: value[0, :num_detections].numpy()
-                for key, value in detections.items()}
-    detections['num_detections'] = num_detections
-
-    # detection_classes should be ints.
-    detections['detection_classes'] = detections['detection_classes'].astype(np.int64)
-
-    label_id_offset = 1
-    image_np_with_detections = image_np.copy()
-
-    viz_utils.visualize_boxes_and_labels_on_image_array(
-                image_np_with_detections,
-                detections['detection_boxes'],
-                detections['detection_classes']+label_id_offset,
-                detections['detection_scores'],
-                category_index,
-                use_normalized_coordinates=True,
-                max_boxes_to_draw=5,
-                min_score_thresh=.8,
-                agnostic_mode=False)
-
-    plt.imshow(cv2.cvtColor(image_np_with_detections, cv2.COLOR_BGR2RGB))
-    #plt.show()
-    plt.savefig('./static/' + uploaded_file.filename + '_detected_plate_full_image.png')
-
-    detection_threshold = 0.7
-
-    image = image_np_with_detections
-    scores = list(filter(lambda x: x> detection_threshold, detections['detection_scores']))
-    boxes = detections['detection_boxes'][:len(scores)]
-    classes = detections['detection_classes'][:len(scores)]
-
-    width = image.shape[1]
-    height = image.shape[0]
-
-    region_threshold = 0.4
-
-    text, region = ocr_it(image_np_with_detections, detections, detection_threshold, region_threshold, uploaded_file.filename)
-    if uploaded_file.filename != '':
-        uploaded_file.save(os.path.join(app.config['UPLOAD_FOLDER'], uploaded_file.filename))
-    return render_template('Image_plate_detection.html', img_cropped_url=img_cropped_url, img_full_url=img_full_url, text=text)
-
-
-
+    pass     
 
 
 if __name__ == '__main__':
