@@ -1,13 +1,30 @@
 <!DOCTYPE html>
 <html>
+<head>
+  <script src ="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.0/socket.io.min.js"></script>
+  <script>
+    socket = io()    
+    socket.on('connect', function(){
+      socket.send('a')
+    })
+    socket.on('message', function(msg){
+      console.log(msg);
+      socket.send('a')
+      document.getElementById("myImg").src = "/static/go_placeholder.png";     
+    })
+  </script>
+</head>
     <body>
     <div>
-    <h1>Licence Plate Detection </h1> 
-    <h2>Software Architecture Prototype </h2>    
+    <h1>Car Park Entry</h1> 
+    <div>
+    <img id="myImg" src ="/static/StopWait_placeholder.png">   
+    </div>
            
-    <img src="{{ url_for('video_feed') }}">
+    
     </div>   
-    <div><h1>File Upload</h1>
+    <div><h1>Entry Camera</h1>
+      <img src="{{ url_for('video_feed') }}">
         <form method="POST" action="/success" enctype="multipart/form-data">
           <p><input type="file" name="file"></p>
           <p><input type="submit" value="Submit"></p>

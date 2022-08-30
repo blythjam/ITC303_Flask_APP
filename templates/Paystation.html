@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+    <head>        
+        <script>
+            function visible_table(){
+                console.log('{{ table_load }}')
+                if('{{ table_load }}'  === "true"){
+                    console.log("it works");
+                    let text = '{{ data.rego_number }}'
+                    console.log(text);
+                    let table = document.createElement('table');
+                    let thead = document.createElement('thead');
+                    let tbody = document.createElement('tbody');   
+                    
+                    table.appendChild(thead);
+                    table.appendChild(tbody);
+
+                    // Adding the entire table to the body tag
+                    document.getElementById('body').appendChild(table); 
+
+                    // Creating and adding data to first row of the table
+                    let row_1 = document.createElement('tr');
+                    let heading_1 = document.createElement('th');
+                    heading_1.innerHTML = "Registration";
+                    let heading_2 = document.createElement('th');
+                    heading_2.innerHTML = "Time Entered";
+                    let heading_3 = document.createElement('th');
+                    heading_3.innerHTML = "Amount Owed";
+                    let heading_4 = document.createElement('th');
+                    heading_4.innerHTML = "Paid";
+
+                    row_1.appendChild(heading_1);
+                    row_1.appendChild(heading_2);
+                    row_1.appendChild(heading_3);
+                    row_1.appendChild(heading_4);
+                    thead.appendChild(row_1);
+
+                    // Creating and adding data to second row of the table
+                    let row_2 = document.createElement('tr');
+                    let row_2_data_1 = document.createElement('td');
+                    row_2_data_1.innerHTML = "{{ data.rego_number }}";
+                    let row_2_data_2 = document.createElement('td');
+                    row_2_data_2.innerHTML = "{{ data.time_entered }}";
+                    let row_2_data_3 = document.createElement('td');
+                    row_2_data_3.innerHTML = "{{ amount_owed }}";
+                    let row_2_data_4 = document.createElement('td');
+                    console.log('{{ data.has_paid }}' )
+                    if('{{ data.has_paid }}' === '0'){
+                        row_2_data_4.innerHTML = "Not Paid";
+                    }else{row_2_data_4.innerHTML = "Paid";}                    
+
+                    row_2.appendChild(row_2_data_1);
+                    row_2.appendChild(row_2_data_2);
+                    row_2.appendChild(row_2_data_3);
+                    row_2.appendChild(row_2_data_4);
+                    tbody.appendChild(row_2);
+
+                    let btn = document.createElement("button");
+                    btn.innerHTML = "Pay";
+                    btn.id = "PayID";     
+                    btn.setAttribute("onClick", "PayIDFunction()")               
+                    tbody.appendChild(btn);
+                    
+                }else{
+                    console.log("it does not work")
+                }
+            }
+            function PayIDFunction(){
+                
+                console.log("clicked");
+                if('{{ data.has_paid }}' === '0'){             
+                    window.location.href = "/paid/" + "{{ data.rego_number}}" ;
+                }else{
+                    alert("Already paid");
+                }           
+            }
+            function cancelFunction(){
+                window.location.href = "/home"
+            }
+        </script>
+    </head>
+<body id="body" onload="visible_table()">
+
+<h2>Find Car by Registration</h2>
+
+<form action="/paystation" method = "POST">
+  <label for="Rego">Enter Registration number:</label><br>
+  <input type="text" id="Rego" name="Rego"><br>
+  
+  <input type="submit" value="Submit">
+</form> 
+
+<button id="cancelbtn" onclick="cancelFunction()">Cancel</button>
+
+
+
+
+</body>
+</html>

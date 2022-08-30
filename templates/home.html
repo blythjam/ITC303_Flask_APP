@@ -10,9 +10,9 @@
 <body>
 
     <div>
-        <button class="button entry_button">Entry Gate</button>
+        <a href="{{ url_for( 'index' ) }}"><button class="button entry_button">Entry Gate</button></a>
         <button class="button exit_button">Exit Gate</button>
-        <button class="button pay_button">Pay Station</button>
+        <a href="{{ url_for( 'paystation' ) }}"><button class="button pay_button">Pay Station</button></a>
     </div>
 
     <div>

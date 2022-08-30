@@ -4,6 +4,7 @@ from PIL import Image
 from flask import Flask, render_template, redirect, request, Response, url_for
 from flask import Flask,render_template, request
 from flask_mysqldb import MySQL
+from flask_socketio import SocketIO
 import os
 import tensorflow.compat.v1 as tf
 import numpy as np
@@ -22,9 +23,11 @@ import csv
 import uuid
 import datetime
 UPLOAD_FOLDER = './Images/uploads/'
-ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
+ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif, jfif'}
 
 app = Flask(__name__)
+app.config['SECRET_KEY']="secret!"
+socket = SocketIO(app)
 
 # MYSQL Connection settings please put your local password here
 app.config['MYSQL_HOST'] = 'localhost'
@@ -42,6 +45,44 @@ def form():
 @app.route('/home')
 def home():
     return render_template('home.html')
+
+@app.route('/paystation', methods = ['POST', 'GET'])
+def paystation():
+    table_load = "false"
+    if request.method == "POST":
+        table_load = "true"
+        form_value = request.form['Rego']
+        cursor =  mysql.connection.cursor()
+        cursor.execute("SELECT * FROM license_plates WHERE rego_number=%s;", [form_value] )
+        data = cursor.fetchone()
+        print(form_value)
+        current_time = datetime.datetime.now() 
+        if not data["time_exited"]:
+            d = (current_time - data["time_entered"]).total_seconds() / 3600
+            total = d * 5
+            total = round(total, 2)
+            amount_owed = total
+            print(d) 
+        else:
+            d = (data["time_exited"] - data["time_entered"]).total_seconds() / 3600
+            total = d * 5
+            total = round(total, 2)
+            amount_owed = total
+            print(d)      
+        return render_template('paystation.html', form_value=form_value, data=data, table_load=table_load, amount_owed=amount_owed)
+    else:  
+        table_load = "false"  
+        data = []  
+        return render_template('paystation.html', table_load=table_load, data=data)
+
+@app.route('/paid/<params>')
+def paid(params):
+    print(params)
+    current_time = datetime.datetime.now()
+    cursor = mysql.connection.cursor()
+    cursor.execute(''' UPDATE license_plates SET has_paid=1, time_exited=%s WHERE rego_number=%s ''', [current_time, params])
+    mysql.connection.commit()
+    return render_template('paid.html')
  
 @app.route('/login', methods = ['POST', 'GET'])
 def login():
@@ -106,9 +147,9 @@ def detect_fn(image):
 
 category_index = label_map_util.create_category_index_from_labelmap('./Tensorfow/workspace/models/annotations/label_map.pbtxt')
 
-IMAGE_PATH = './Images/test/Cars416.png'
+IMAGE_PATH = './Images/test/Loop Images/7.jpg'
 
-IMAGE_NAME1 = 'Cars416.png'
+IMAGE_NAME1 = '7.jpg'
 
 print(IMAGE_PATH)
 
@@ -145,7 +186,7 @@ plt.imshow(cv2.cvtColor(image_np_with_detections, cv2.COLOR_BGR2RGB))
 #plt.show()
 plt.savefig('./Images/saved/' + IMAGE_NAME1 + '_detected_plate_full_image.png')
 
-detection_threshold = 0.7
+detection_threshold = 0.6
 
 image = image_np_with_detections
 scores = list(filter(lambda x: x> detection_threshold, detections['detection_scores']))
@@ -164,8 +205,7 @@ def filter_text(region, ocr_result, region_threshold):
     
     for result in ocr_result:
         length = np.sum(np.subtract(result[0][1], result[0][0]))
-        height = np.sum(np.subtract(result[0][2], result[0][1]))
-        
+        height = np.sum(np.subtract(result[0][2], result[0][1]))        
         if length*height / rectangle_size > region_threshold:
             plate.append(result[1])
         
@@ -182,13 +222,15 @@ def ocr_it(image, detections, detection_threshold, region_threshold, image_name)
     
     width = image.shape[1]
     height = image.shape[0]   
-   
+    text = []
+    region = []
     # Apply ROI filtering and OCR
     for idx, box in enumerate(boxes):
         roi = box*[height, width, height, width]
         region = image[int(roi[0]):int(roi[2]),int(roi[1]):int(roi[3])]
         reader = easyocr.Reader(['en'])
         ocr_result = reader.readtext(region)
+        print("ocr result: ", ocr_result)
         # Keras OCR / not currently in use ignore the below code
         #read image from the an image path (a jpg/png file or an image url)
         #img = keras_ocr.tools.read(region)
@@ -210,16 +252,16 @@ def ocr_it(image, detections, detection_threshold, region_threshold, image_name)
 
         # Keras OCR / not currently in use ignore the above code
 
-        text = filter_text(region, ocr_result, region_threshold)
-
+        text = filter_text(region, ocr_result, region_threshold)        
         plt.imshow(cv2.cvtColor(region, cv2.COLOR_BGR2RGB))
-        plt.savefig('./static/' + image_name + '_detected_plate_cropped_image.png')
+        #plt.savefig('./static/' + image_name + '_detected_plate_cropped_image.png')
     
         return text, region
 
-# text, region = ocr_it(image_np_with_detections, detections, detection_threshold, region_threshold)
 
-# print(text)
+text, region = ocr_it(image_np_with_detections, detections, detection_threshold, region_threshold, IMAGE_NAME1)
+print("here ", text)
+
 
 def save_results(text, region, csv_filename, folder_path):
     img_name = '{}.jpg'.format(uuid.uuid1())
@@ -238,8 +280,13 @@ cap = cv2.VideoCapture(0)
 width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
 height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
-def webcamdect():
-    while cap.isOpened(): 
+Stop_Go = False
+
+Entry_stop = "StopWait_placeholder.png"
+Entry_go = "go_placeholder.png"
+
+def webcamdect():    
+    while cap.isOpened():          
         ret, frame = cap.read()
         image_np = np.array(frame)
         input_tensor = tf.convert_to_tensor(np.expand_dims(image_np, 0), dtype=tf.float32)
@@ -268,8 +315,11 @@ def webcamdect():
                     agnostic_mode=False)   
 
         try:
-            text, region = ocr_it(image_np_with_detections, detections, detection_threshold, region_threshold)            
+            text, region = ocr_it(image_np_with_detections, detections, detection_threshold, region_threshold, IMAGE_NAME1)            
             save_results(text, region, './Detection_images/detection_results.csv', './Detection_images/')
+            print(text)
+            if (text[0] =='879 GQL'):
+                socket.send(Entry_go)              
         except:
             pass    
 
@@ -278,15 +328,15 @@ def webcamdect():
         yield (b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
         time.sleep(0.01)
         
-        if cv2.waitKey(10) & 0xFF == ord('q'):
+        if cv2.waitKey(10) & 0xFF == ord('q'):                              
             cap.release()
-            cv2.destroyAllWindows()
-            break
+            cv2.destroyAllWindows()            
+            break 
 
 @app.route("/")
-def index():
+def index():  
     return render_template('index.html')
-
+    
 
 @app.route('/video_feed')
 def video_feed():
@@ -298,6 +348,10 @@ def video_feed():
         mimetype='multipart/x-mixed-replace; boundary=frame'
     )
 
+@socket.on('message')
+def handlemsg(msg):
+    pass
+       
 @app.route('/success', methods=['POST'])
 def upload_file():
     uploaded_file = request.files['file']
@@ -308,7 +362,8 @@ def upload_file():
         uploaded_file.save(os.path.join(app.config['UPLOAD_FOLDER'], uploaded_file.filename))   
     img_url = UPLOAD_FOLDER + uploaded_file.filename
     print(img_url)
-    img = cv2.imread(img_url)
+    img = cv2.imread(img_url)    	
+    #gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     image_np = np.array(img)
 
     input_tensor = tf.convert_to_tensor(np.expand_dims(image_np, 0), dtype=tf.float32)
@@ -356,10 +411,13 @@ def upload_file():
     text, region = ocr_it(image_np_with_detections, detections, detection_threshold, region_threshold, uploaded_file.filename)
     if uploaded_file.filename != '':
         uploaded_file.save(os.path.join(app.config['UPLOAD_FOLDER'], uploaded_file.filename))
-    return render_template('Image_plate_detection.html', img_cropped_url=img_cropped_url, img_full_url=img_full_url)
+    return render_template('Image_plate_detection.html', img_cropped_url=img_cropped_url, img_full_url=img_full_url, text=text)
+
+
+
 
 
 if __name__ == '__main__':
-    app.run()
+    socket.run(app)
 
 
