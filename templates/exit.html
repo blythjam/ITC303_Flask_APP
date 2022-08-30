@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src ="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.0/socket.io.min.js"></script>
+  <script>
+    socket = io()    
+    socket.on('connect', function(){
+      socket.send('a')
+    })
+    socket.on('message', function(msg){
+      
+      socket.send('a')
+      var data = JSON.parse('{{ data | tojson | safe }} ');
+      let result1 ="{{ data }}".includes(msg);
+      console.log(result1)   
+      if(result1){
+        window.location.href = "/exit_forward/" + JSON.stringify(msg);
+            
+      }
+      
+
+       
+    })      
+
+
+
+    console.log("{{ data }} ")
+  </script>
+</head>
+    <body>
+    <div>
+    <h1>Car Park Entry</h1> 
+    <div>
+    <img id="myImg" src ="/static/StopWait_placeholder.png">   
+    </div>
+    <p>First 2 hours free, then $5 per hour</p>       
+    
+    </div>   
+    <div><h1>Entry Camera</h1>
+      <img src="{{ url_for('video_feed') }}">
+        <form method="POST" action="/success" enctype="multipart/form-data">
+          <p><input type="file" name="file"></p>
+          <p><input type="submit" value="Submit"></p>
+        </form>
+    </div>
+    </body>
+</html>

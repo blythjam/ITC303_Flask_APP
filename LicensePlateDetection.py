@@ -341,6 +341,27 @@ def go_forward(params):
     mysql.connection.commit()
     cursor.close()    
     return render_template('go_forward.html')
+
+@app.route("/exit")
+def exit():    
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT * FROM registered_cars")
+    data = cursor.fetchall()
+    print("test2: ", data)      
+    return render_template('exit.html', data=data)
+
+
+@app.route("/exit_forward/<params>")
+def exit_forward(params):    
+    print(params)  
+    rego = params.replace('"', '')
+    print(rego)
+    timeExited = datetime.datetime.now()           
+    cursor = mysql.connection.cursor()
+    cursor.execute('''UPDATE license_plates SET has_paid=1, time_exited=%s WHERE rego_number=%s ''',[timeExited, rego])    
+    mysql.connection.commit()
+    cursor.close()    
+    return render_template('exit_forward.html')
     
 @app.route('/video_feed')
 def video_feed():
