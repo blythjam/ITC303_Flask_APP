@@ -3,14 +3,36 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8" />
-    <title></title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
+
+    <title>Search Car Registation Number</title>
 </head>
 <body>
-
-    <form action="/login" method="POST">
-        <p>rego <input type="text" name="rego" /></p>       
-        <p><input type="submit" value="Submit" /></p>
+    <nav class="navbar navbar-light bg-light">
+        <div class="container">
+          <a class="navbar-brand" href="{{ url_for('home') }}">
+            <img src="{{url_for('static', filename='images/logo.svg')}}" alt="" width="50" height="40" class="d-inline-block"/>
+            Plate Detection
+          </a>
+        </div>
+      </nav>
+      <form class="domain-search" action="/login" method="POST">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3">
+                    <h2 class="form-title">Enter The <strong>Registration Number</strong></h2>
+                    <p>Search for the registration number</p>
+                </div>
+                <div class="col-md-9">
+                    <div class="input-group">
+                        <input type="search" class="form-control">
+                        <span class="input-group-addon"><input type="submit" value="Search" class="btn btn-primary"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </form>
-
+    <script src="{{url_for('static', filename='script/bootstrap.bundle.min.js')}}"></script>   
 </body>
 </html>

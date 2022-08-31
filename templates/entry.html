@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
-    <title>Car Park Exit</title>
+    <title>Car Park Entry</title>
   <script src ="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.0/socket.io.min.js"></script>
   <script>
     socket = io()    
@@ -18,9 +18,9 @@
       let result1 ="{{ data }}".includes(msg);
       console.log(result1)   
       if(result1){
-        window.location.href = "/exit_forward/" + JSON.stringify(msg);
+        window.location.href = "/go_forward/" + JSON.stringify(msg);
             
-      }       
+      } 
     })      
     console.log("{{ data }} ")
   </script>
@@ -35,13 +35,13 @@
     </div>
   </nav>
   <div class="container">
-    <h1>Car Park Exit</h1>
+    <h1>Car Park Entry</h1>
     <img id="myImg" src ="/static/images/StopWait_placeholder.png">
     <p>First 2 hours free, then $5 per hour</p>
   </div>
 
   <div class="container">
-    <h1>Exit Camera</h1>
+    <h1>Entry Camera</h1>
     <img src="{{ url_for('video_feed') }}">
   </div>
 

@@ -1,18 +1,30 @@
 <!DOCTYPE html>
-<html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <title>Car Park Exit</title>
   <script src ="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.0/socket.io.min.js"></script>
   <script>
      setTimeout(function(){
-           window.location.href = '/';
+           window.location.href = '/exit';
         }, 15000);
   </script>
 </head>
-    <body>
-    <div>
-    <h1>Car Park Entry</h1> 
-    <div>
-    <img id="myImg" src ="/static/go_placeholder.png">   
-    </div>           
-    
+<body>
+  <nav class="navbar navbar-light bg-light">
+    <div class="container">
+      <a class="navbar-brand" href="{{ url_for('home') }}">
+        <img src="{{url_for('static', filename='images/logo.svg')}}" alt="" width="50" height="40" class="d-inline-block"/>
+        Plate Detection
+      </a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <h1>Car Park Exit</h1>
+    <img id="myImg" src ="/static/images/go_placeholder.png">    
+  </div>
+</body>
 </html>
