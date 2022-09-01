@@ -1,32 +1,85 @@
 <!DOCTYPE html>
-
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/reports.css') }}">
-    <title></title>
-    <h1>Car Park Software Beta</h1>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <title>ITC309 - License Plate Detection Beta</title>
 </head>
 <body>
-
-    <div>
-        <a href="{{ url_for( 'index' ) }}"><button class="button entry_button">Entry Gate</button></a>
-        <a href="{{ url_for( 'exit' ) }}"><button class="button exit_button">Exit Gate</button></a>
-        <a href="{{ url_for( 'paystation' ) }}"><button class="button pay_button">Pay Station</button></a>
+  <nav class="navbar navbar-light bg-light">
+    <div class="container">
+      <a class="navbar-brand" href="{{ url_for('home') }}">
+        <img src="{{url_for('static', filename='images/logo.svg')}}" alt="" width="50" height="40" class="d-inline-block"/>
+        Plate Detection
+      </a>
     </div>
+  </nav>
+  <div class="container">
+    <div class="row mt-2">
+      <div class="col-sm">
+        <div class="card border border-primary" style="width: 18rem;">
+          <img src="{{url_for('static', filename='images/entry-gate.svg')}}" class="card-img-top" width="286" height="286" alt="Entry Gate">
+          <div class="card-body m-0 p-0 bg-primary">
+           
+            <a href="{{ url_for( 'entry' ) }}" class="btn btn-primary btn-lg border-top-right-radius-0 w-100 text-uppercase" role="button">Entry Gate</a>
+          </div>
+        </div>
 
-    <div>
-    <h2>Car Park Reports</h2>
-    <div class="dropdown">
-        <button class="dropbtn">Reports</button>
-        <div class="dropdown-content">
-          <a href="{{ url_for('all_cars_in_park') }}">All cars currently in car park</a>
-          <a href="amountowed.html">Amount owed by car</a>
-          <a href="history.html">Car park history</a>
+      </div>
+      <div class="col-sm">
+        <div class="card border border-danger" style="width: 18rem;">
+          <img src="{{url_for('static', filename='images/exit-gate.svg')}}" class="card-img-top" width="286" height="286" alt="Exit Gate">
+          <div class="card-body m-0 p-0 bg-danger">
+            <a href="{{ url_for( 'exit' ) }}" class="btn btn-danger btn-lg border-top-right-radius-0 w-100 text-uppercase" role="button">Exit Gate</a>
+          </div>
+        </div>
+
+      </div>
+      <div class="col-sm">
+        <div class="card border border-warning" style="width: 18rem;">
+          <img src="{{url_for('static', filename='images/pay-station.svg')}}" class="card-img-top" width="286" height="286" alt="Pay Station">
+          <div class="card-body m-0 p-0 bg-warning">
+            <a href="{{ url_for( 'paystation' ) }}" class="btn btn-warning btn-lg border-top-right-radius-0 w-100 text-uppercase" role="button">Pay Station</a>
+          </div>
         </div>
       </div>
     </div>
+  <div>
+
+  <div class="container">
+    <h2>Car Park Reports</h2>
+    <div class="row mt-2">
+      <div class="col-sm">
+        <div class="card border border-info" style="width: 18rem;">
+          <img src="{{url_for('static', filename='images/current-car-parked.svg')}}" class="card-img-top" width="286" height="286" alt="Cars Currently in Park">
+          <div class="card-body m-0 p-0 bg-info">
+           
+            <a href="{{ url_for('all_cars_in_park') }}" class="btn btn-info btn-lg border-top-right-radius-0 w-100 text-uppercase" role="button">Currently in Car Park</a>
+          </div>
+        </div>
+
+      </div>
+      <div class="col-sm disabled">
+        <div class="card border border-success" style="width: 18rem;">
+          <img src="{{url_for('static', filename='images/amount-by-cars.svg')}}" class="card-img-top" width="286" height="286" alt="Amount Owned By Car">
+          <div class="card-body m-0 p-0 bg-success">
+            <a href="{{ url_for( 'paystation' ) }}" class="btn btn-success btn-lg border-top-right-radius-0 w-100 text-uppercase" role="button">Amount Owned by car</a>
+          </div>
+        </div>
+
+      </div>
+      <div class="col-sm disabled">
+        <div class="card border border-dark" style="width: 18rem;">
+          <img src="{{url_for('static', filename='images/car-history.svg')}}" class="card-img-top" width="286" height="286" alt="Pay Station">
+          <div class="card-body m-0 p-0 bg-dark">
+            <a href="{{ url_for('all_cars_in_park') }}" class="btn btn-dark btn-lg border-top-right-radius-0 w-100 text-uppercase" role="button">Car Park History</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
      
-        
+<script src="{{url_for('static', filename='script/bootstrap.bundle.min.js')}}"></script>        
 </body>
 </html>
