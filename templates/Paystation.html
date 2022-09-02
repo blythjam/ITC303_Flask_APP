@@ -1,10 +1,6 @@
 <!DOCTYPE html>
 <html>
-
-    <head>
-        <meta charset="utf-8" />
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
-        <title>Find Car by Registration</title>
+    <head>        
         <script>
             function visible_table(){
                 console.log('{{ table_load }}')
@@ -14,20 +10,13 @@
                     console.log(text);
                     let table = document.createElement('table');
                     let thead = document.createElement('thead');
-                    let tbody = document.createElement('tbody');
-                    table.classList.add('table');
-                    table.classList.add('container');
-                    table.classList.add('mt-3');
-                    table.classList.add('table-bordered');
-                    table.classList.add('table-striped');
-                    thead.classList.add('table-success');
-                                        
+                    let tbody = document.createElement('tbody');   
+                    
                     table.appendChild(thead);
                     table.appendChild(tbody);
 
                     // Adding the entire table to the body tag
-                     document.getElementById('regoTable').appendChild(table);
-                    
+                    document.getElementById('body').appendChild(table); 
 
                     // Creating and adding data to first row of the table
                     let row_1 = document.createElement('tr');
@@ -67,9 +56,6 @@
                     tbody.appendChild(row_2);
 
                     let btn = document.createElement("button");
-                    btn.classList.add("btn");
-                    btn.classList.add('btn-success');
-                    btn.classList.add('mb-3')
                     btn.innerHTML = "Pay";
                     btn.id = "PayID";     
                     btn.setAttribute("onClick", "PayIDFunction()")               
@@ -93,36 +79,21 @@
             }
         </script>
     </head>
-<body id="regoTable" onload="visible_table()">
-    <nav class="navbar navbar-light bg-light">
-        <div class="container">
-          <a class="navbar-brand" href="{{ url_for('home') }}">
-            <img src="{{url_for('static', filename='images/logo.svg')}}" alt="" width="50" height="40" class="d-inline-block"/>
-            Plate Detection
-          </a>
-        </div>
-      </nav>
-      <div class="container">
-        <h2>Find Car by Registration</h2>
+<body id="body" onload="visible_table()">
 
-        <form action="/paystation" method = "POST">
+<h2>Find Car by Registration</h2>
 
-            <label for="Rego">Enter Registration number:</label><br>
-            <input type="text" id="Rego" name="Rego"><br>
+<form action="/paystation" method = "POST">
+  <label for="Rego">Enter Registration number:</label><br>
+  <input type="text" id="Rego" name="Rego"><br>
+  
+  <input type="submit" value="Submit">
+</form> 
 
-            <div class="btn-group">
-                <button type="submit" class="btn btn-primary mr-2">Submit</button>
-                <button id="cancelbtn" class="btn btn-danger" onclick="cancelFunction()">Cancel</button>
-            </div>
-          </form> 
-         
-      </div>
+<button id="cancelbtn" onclick="cancelFunction()">Cancel</button>
 
-      <div class="container">
-        <div id="regoTable" onload="visible_table()"></div>
-      </div>
 
-<script src="{{url_for('static', filename='script/bootstrap.bundle.min.js')}}"></script>   
+
 
 </body>
 </html>
