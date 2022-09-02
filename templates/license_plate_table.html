@@ -3,48 +3,83 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/reports.css') }}">
-    <title></title>
-    <h1>Car Park Reports</h1>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <title>Car Park Reports</title>
 </head>
 <body>
-    <div class="dropdown">
-        <button class="dropbtn">Reports</button>
-        <div class="dropdown-content">
-          <a href="allcars.html">All cars currently in car park</a>
-          <a href="amountowed.html">Amount owed by car</a>
-          <a href="history.html">Car park history</a>
+
+    <nav class="navbar navbar-light bg-light">
+        <div class="container">
+          <a class="navbar-brand" href="{{ url_for('home') }}">
+            <img src="{{url_for('static', filename='images/logo.svg')}}" alt="" width="50" height="40" class="d-inline-block"/>
+            Plate Detection
+          </a>
+        </div>
+    </nav>
+    <div class="container">
+        <h2>Reports</h2>
+        <div class="row mt-2">
+          <div class="col-sm">
+            <div class="card border border-info" style="width: 18rem;">
+              <img src="{{url_for('static', filename='images/current-car-parked.svg')}}" class="card-img-top" width="286" height="286" alt="Cars Currently in Park">
+              <div class="card-body m-0 p-0 bg-info">
+               
+                <a href="{{ url_for('all_cars_in_park') }}" class="btn btn-info btn-lg border-top-right-radius-0 w-100 text-uppercase" role="button">Currently in Car Park</a>
+              </div>
+            </div>
+    
+          </div>
+          <div class="col-sm">
+            <div class="card border border-success" style="width: 18rem;">
+              <img src="{{url_for('static', filename='images/amount-by-cars.svg')}}" class="card-img-top" width="286" height="286" alt="Amount Owned By Car">
+              <div class="card-body m-0 p-0 bg-success">
+                <a href="{{ url_for( 'paystation' ) }}" class="btn btn-success btn-lg border-top-right-radius-0 w-100 text-uppercase" role="button">Amount Owned by car</a>
+              </div>
+            </div>
+    
+          </div>
+          <div class="col-sm">
+            <div class="card border border-dark" style="width: 18rem;">
+              <img src="{{url_for('static', filename='images/car-history.svg')}}" class="card-img-top" width="286" height="286" alt="Pay Station">
+              <div class="card-body m-0 p-0 bg-dark">
+                <a href="{{ url_for('all_cars_in_park') }}" class="btn btn-dark btn-lg border-top-right-radius-0 w-100 text-uppercase" role="button">Car Park History</a>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-     
-    <div>  
-    <table border="1" cellpadding="5" cellspacing="5">
-        <tr>
-            <th>Registration</th>
-            <th>Time Entered</th>
-            <th>Amount Owed</th>
-            <th>Paid</th>
-        </tr>
-        {% set count = namespace(value=0) %}
-        {% for row in data %}
-        
-        <tr>
+      
+    <div class="container">
+        <table id="allcars" class="table mt-3 table-bordered table-striped">
+            <thead class="table-success">
+                <tr>
+                    <th scope="col">Registration</th>
+                    <th scope="col">Time Entered</th>
+                    <th scope="col">Amount Owed</th>
+                    <th scope="col">Paid</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% set count = namespace(value=0) %}
+                {% for row in data %}
             
-            <td>{{row.rego}}</td>
-            <td>{{row.timeEntered}}</td>            
-            <td>${{amount_owed[count.value]}}</td>          
-            {% set count.value = count.value + 1 %}
-            {% if row.has_paid %}
-                <td>Paid</td>
-            {% else %}
-                <td>Not Paid</td>
-            {% endif %}
-
-        </tr>
-        {% endfor %}
-
-        
-    </table>
+                <tr>
+                
+                    <td>{{row.rego}}</td>
+                    <td>{{row.timeEntered}}</td>            
+                    <td>${{amount_owed[count.value]}}</td>          
+                    {% set count.value = count.value + 1 %}
+                    {% if row.has_paid %}
+                        <td>Paid</td>
+                    {% else %}
+                        <td>Not Paid</td>
+                    {% endif %}
+    
+                </tr>
+                {% endfor %}
+    
+            </tbody>            
+        </table>
     </div>
     
 </body>

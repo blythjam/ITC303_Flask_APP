@@ -42,6 +42,7 @@ def form():
     return render_template('form.html')
 
 @app.route('/home')
+@app.route('/')
 def home():
     return render_template('home.html')
 
@@ -156,9 +157,9 @@ def detect_fn(image):
 
 category_index = label_map_util.create_category_index_from_labelmap('./Tensorfow/workspace/models/annotations/label_map.pbtxt')
 
-IMAGE_PATH = './Images/test/Loop Images/7.jpg'
+IMAGE_PATH = './Images/test/Cars413.png'
 
-IMAGE_NAME1 = '7.jpg'
+IMAGE_NAME1 = 'Cars413.png'
 
 print(IMAGE_PATH)
 
@@ -321,13 +322,13 @@ def webcamdect():
             cv2.destroyAllWindows()            
             break 
 
-@app.route("/")
+@app.route("/entry")
 def index():    
     cursor = mysql.connection.cursor()
     cursor.execute("SELECT * FROM registered_cars")
     data = cursor.fetchall()
     print("test2: ", data)      
-    return render_template('index.html', data=data)
+    return render_template('entry.html', data=data)
 
 
 @app.route("/go_forward/<params>")
