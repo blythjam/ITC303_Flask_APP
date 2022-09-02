@@ -156,9 +156,9 @@ def detect_fn(image):
 
 category_index = label_map_util.create_category_index_from_labelmap('./Tensorfow/workspace/models/annotations/label_map.pbtxt')
 
-IMAGE_PATH = './Images/test/Loop Images/7.jpg'
+IMAGE_PATH = './Images/test/Cars411.png'
 
-IMAGE_NAME1 = '7.jpg'
+IMAGE_NAME1 = 'Cars411.png'
 
 print(IMAGE_PATH)
 
