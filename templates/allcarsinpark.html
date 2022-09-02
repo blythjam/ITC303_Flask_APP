@@ -3,39 +3,50 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/table.css') }}">
-    <title></title>
-    <h1>All cars in park</h1>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <title>All cars in car park</title>
 </head>
-<body>    
-    <table id="allcars" border="1" cellpadding="5" cellspacing="5">
-        <tr>
-            <th>Registration</th>
-            <th>Time Entered</th>
-            <th>Amount Owed</th>
-            <th>Paid</th>
-        </tr>
-        {% set count = namespace(value=0) %}
-        {% for row in data %}
-        
-        <tr>
+<body>
+    <nav class="navbar navbar-light bg-light">
+        <div class="container">
+          <a class="navbar-brand" href="{{ url_for('home') }}">
+            <img src="{{url_for('static', filename='images/logo.svg')}}" alt="" width="50" height="40" class="d-inline-block"/>
+            Plate Detection
+          </a>
+        </div>
+    </nav>
+    <div class="container">
+        <table id="allcars" class="table mt-3 table-bordered table-striped">
+            <thead class="table-success">
+                <tr>
+                    <th scope="col">Registration</th>
+                    <th scope="col">Time Entered</th>
+                    <th scope="col">Amount Owed</th>
+                    <th scope="col">Paid</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% set count = namespace(value=0) %}
+                {% for row in data %}
             
-            <td>{{row.rego}}</td>
-            <td>{{row.timeEntered}}</td>            
-            <td>${{amount_owed[count.value]}}</td>          
-            {% set count.value = count.value + 1 %}
-            {% if row.has_paid %}
-                <td>Paid</td>
-            {% else %}
-                <td>Not Paid</td>
-            {% endif %}
-
-        </tr>
-        {% endfor %}
-
-        
-    </table>
-    </div>
+                <tr>
+                
+                    <td>{{row.rego}}</td>
+                    <td>{{row.timeEntered}}</td>            
+                    <td>${{amount_owed[count.value]}}</td>          
+                    {% set count.value = count.value + 1 %}
+                    {% if row.has_paid %}
+                        <td>Paid</td>
+                    {% else %}
+                        <td>Not Paid</td>
+                    {% endif %}
     
+                </tr>
+                {% endfor %}
+    
+            </tbody>            
+        </table>
+    </div>
+    <script src="{{url_for('static', filename='script/bootstrap.bundle.min.js')}}"></script>    
 </body>
 </html>

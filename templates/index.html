@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+  <title>Car Park Entry</title>
   <script src ="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.0/socket.io.min.js"></script>
   <script>
     socket = io()    
@@ -27,21 +29,25 @@
     console.log("{{ data }} ")
   </script>
 </head>
-    <body>
-    <div>
-    <h1>Car Park Entry</h1> 
-    <div>
-    <img id="myImg" src ="/static/StopWait_placeholder.png">   
-    </div>
-    <p>First 2 hours free, then $5 per hour</p>       
-    
-    </div>   
-    <div><h1>Entry Camera</h1>
-      <img src="{{ url_for('video_feed') }}">
-        <form method="POST" action="/success" enctype="multipart/form-data">
-          <p><input type="file" name="file"></p>
-          <p><input type="submit" value="Submit"></p>
-        </form>
-    </div>
-    </body>
+<nav class="navbar navbar-light bg-light">
+  <div class="container">
+    <a class="navbar-brand" href="{{ url_for('home') }}">
+      <img src="{{url_for('static', filename='images/logo.svg')}}" alt="" width="50" height="40" class="d-inline-block"/>
+      Plate Detection
+    </a>
+  </div>
+</nav>
+<div class="container">
+  <h1>Car Park Entry</h1>
+  <img id="myImg" src ="/static/images/StopWait_placeholder.png">
+  <p>First 2 hours free, then $5 per hour</p>
+</div>
+
+<div class="container">
+  <h1>Entry Camera</h1>
+  <img src="{{ url_for('video_feed') }}">
+</div>
+
+<script src="{{url_for('static', filename='script/bootstrap.bundle.min.js')}}"></script>    
+</body>
 </html>
