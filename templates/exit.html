@@ -1,23 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8" />
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
-  <title>Car Park Exit</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <title>Car Park Exit</title>
   <script src ="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.0/socket.io.min.js"></script>
   <script>
-    socket = io()    
+    socket = io()
     socket.on('connect', function(){
       socket.send('a')
     })
     socket.on('message', function(msg){
-      
+
       socket.send('a')
       var data = JSON.parse('{{ data | tojson | safe }} ');
       let result1 ="{{ data }}".includes(msg);
-      console.log(result1)   
+      console.log(result1)
       if(result1){
         window.location.href = "/exit_forward/" + JSON.stringify(msg);
+
       }
     })
     console.log("{{ data }} ")
@@ -42,7 +43,6 @@
     <h1>Exit Camera</h1>
     <img src="{{ url_for('video_feed') }}">
   </div>
-
   <script src="{{url_for('static', filename='script/bootstrap.bundle.min.js')}}"></script>
 </body>
 </html>
